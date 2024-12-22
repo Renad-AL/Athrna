@@ -33,7 +33,7 @@ struct ContentView: View {
                         Button(action: {
                             selectedCharacter = "Girll" // Save selection
                         }) {
-                            Image("Girll")
+                            Image("saraleft")
                                 .resizable()
                                 .scaledToFit()
                                 .frame(width: 350, height: 450) // Larger size for the girl image
