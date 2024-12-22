@@ -51,7 +51,7 @@ struct AtharListView: View {
                             )
                         
                         HStack(spacing: 20) {
-                            Image("girl")
+                            Image("Girll")
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
                                 .frame(height: 550)

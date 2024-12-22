@@ -18,7 +18,7 @@ struct candyMonsterG: View {
                 Spacer()
 
                 // Girl's image (ensure the image is added correctly to the assets folder)
-                Image("girl")  // Image reference without the extension
+                Image("GirlBat")  // Image reference without the extension
                     .resizable()
                     .scaledToFit()
                     .frame(width: 800, height: 850) // Adjust the size

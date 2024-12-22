@@ -31,9 +31,9 @@ struct ContentView: View {
                 HStack(spacing: 100) { // Increased spacing
                     VStack(spacing: 10) {
                         Button(action: {
-                            selectedCharacter = "Girl" // Save selection
+                            selectedCharacter = "Girll" // Save selection
                         }) {
-                            Image("girl")
+                            Image("Girll")
                                 .resizable()
                                 .scaledToFit()
                                 .frame(width: 350, height: 450) // Larger size for the girl image
@@ -51,9 +51,9 @@ struct ContentView: View {
 
                     VStack(spacing: 10) {
                         Button(action: {
-                            selectedCharacter = "Boy" // Save selection
+                            selectedCharacter = "Boyy" // Save selection
                         }) {
-                            Image("boy")
+                            Image("Boyy")
                                 .resizable()
                                 .scaledToFit()
                                 .frame(width: 350, height: 450) // Larger size for the boy image

@@ -18,7 +18,7 @@ struct candyMonsterB: View {
                 Spacer()
 
                 // Boy's image (updated to use boys.png)
-                Image("boys")  // Make sure "boys.png" is in your assets
+                Image("boyBAT")  // Make sure "boys.png" is in your assets
                     .resizable()
                     .scaledToFit()
                     .frame(width: 800, height: 850)
