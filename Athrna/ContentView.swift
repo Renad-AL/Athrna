@@ -2,76 +2,79 @@ import SwiftUI
 
 struct ContentView: View {
     @AppStorage("selectedCharacter") private var selectedCharacter: String = "None"
-    
+
     var body: some View {
-        ZStack {
-            // Background color
-            Color(red: 1.0, green: 0.97, blue: 0.90)
-                .edgesIgnoringSafeArea(.all)
+        NavigationStack {
+            ZStack {
+                Color(red: 1.0, green: 0.97, blue: 0.90)
+                    .edgesIgnoringSafeArea(.all)
 
-            VStack {
-                // Background with lights
-                Image("light")
-                    .resizable()
-                    .scaledToFill() // Use scaled to fill to avoid empty spaces
-                    .frame(height: 500) // Larger height for iPad
-                    .frame(width: 1500)
-                    .clipped() // Clip the overflowing parts to make it fit
-                    .padding(.top, -100) // Position lights at the top
+                VStack {
+                    Image("light")
+                        .resizable()
+                        .scaledToFill()
+                        .frame(height: 500)
+                        .frame(width: 1500)
+                        .clipped()
+                        .padding(.top, -100)
 
-                // Title
-                Text("أهلًا بمحاربينا")
-                    .font(.system(size: 60, weight: .bold)) // Larger font size
-                    .foregroundColor(.brown)
-                    .padding(.top, 30)
+                    Text("أهلًا بمحاربينا")
+                        .font(.system(size: 60, weight: .bold))
+                        .foregroundColor(.brown)
+                        .padding(.top, 30)
 
-                Spacer()
+                    Spacer()
 
-                // Characters (Boy & Girl) horizontally aligned
-                HStack(spacing: 100) { // Increased spacing
-                    VStack(spacing: 10) {
-                        Button(action: {
-                            selectedCharacter = "Girll" // Save selection
-                        }) {
-                            Image("saraleft")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 350, height: 450) // Larger size for the girl image
+                    HStack(spacing: 100) {
+                        VStack(spacing: 10) {
+                            Button(action: {
+                                selectedCharacter = "Girl"
+                            }) {
+                                Image("saraleft")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 350, height: 450)
+                            }
+                            RoundedRectangle(cornerRadius: 15)
+                                .fill(Color.pink.opacity(0.8))
+                                .frame(width: 150, height: 60)
+                                .overlay(Text("سارة").font(.title).foregroundColor(.white))
                         }
-                        // Text Box for Girl Name
-                        RoundedRectangle(cornerRadius: 15)
-                            .fill(Color.pink.opacity(0.8)) // Corrected opacity usage
-                            .frame(width: 150, height: 60) // Set size for the box
-                            .overlay(
-                                Text("سارة")
-                                    .font(.title)
-                                    .foregroundColor(.white)
-                            )
+
+                        VStack(spacing: 10) {
+                            Button(action: {
+                                selectedCharacter = "Boy"
+                            }) {
+                                Image("Boyy")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 350, height: 450)
+                            }
+                            RoundedRectangle(cornerRadius: 15)
+                                .fill(Color.purple.opacity(0.8))
+                                .frame(width: 150, height: 60)
+                                .overlay(Text("سعد").font(.title).foregroundColor(.white))
+                        }
                     }
+                    .padding(.bottom, 100)
 
-                    VStack(spacing: 10) {
-                        Button(action: {
-                            selectedCharacter = "Boyy" // Save selection
-                        }) {
-                            Image("Boyy")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 350, height: 450) // Larger size for the boy image
+                    Spacer()
+
+                    // NavigationLinks for character selection
+                    if selectedCharacter == "Boy" {
+                        NavigationLink(destination: candyMonsterB()) {
+                            EmptyView()
                         }
-                        RoundedRectangle(cornerRadius: 15)
-                            .fill(Color.purple.opacity(0.8)) // Corrected opacity usage
-                            .frame(width: 150, height: 60) // Set size for the box
-                            .overlay(
-                                Text("سعد")
-                                    .font(.title)
-                                    .foregroundColor(.white)
-                            )
+                        .hidden()
+                    } else if selectedCharacter == "Girl" {
+                        NavigationLink(destination: CandyMonsterG()) {
+                            EmptyView()
+                        }
+                        .hidden()
                     }
                 }
-                .padding(.bottom, 100) // Increased padding at the bottom
-
-                Spacer()
             }
+            .navigationBarHidden(true)
         }
     }
 }
