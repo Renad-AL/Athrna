@@ -1,162 +1,265 @@
 import SwiftUI
+import UIKit  // Import UIKit for using CAEmitterLayer
 
+// ConfettiView: A SwiftUI wrapper for UIKit's CAEmitterLayer to show confetti
+struct ConfettiView: UIViewControllerRepresentable {
+    class ConfettiViewController: UIViewController {
+        private var emitterLayer: CAEmitterLayer!
+
+        override func viewDidLoad() {
+            super.viewDidLoad()
+            view.backgroundColor = .clear // Make background clear to focus on confetti
+            setupEmitterLayer()
+        }
+
+        private func setupEmitterLayer() {
+            emitterLayer = CAEmitterLayer()
+            // Position the emitter at the top center of the screen
+            emitterLayer.emitterPosition = CGPoint(x: view.bounds.midX, y: 0)  // Position at the top-center
+            emitterLayer.emitterSize = CGSize(width: view.bounds.size.width, height: 1) // Full width emitter
+            emitterLayer.emitterShape = .line
+            emitterLayer.renderMode = .additive
+
+            let colors: [UIColor] = [.red, .green, .blue, .yellow, .orange, .purple]
+            var cells: [CAEmitterCell] = []
+
+            for color in colors {
+                let cell = createConfettiCell(color: color)
+                cells.append(cell)
+            }
+
+            emitterLayer.emitterCells = cells
+            view.layer.addSublayer(emitterLayer)
+        }
+
+        private func createConfettiCell(color: UIColor) -> CAEmitterCell {
+            let cell = CAEmitterCell()
+            cell.birthRate = 250  // Increased for more confetti
+            cell.lifetime = 10.0  // Shorter lifetime for faster confetti
+            cell.velocity = 300  // Increased for faster falling confetti
+            cell.velocityRange = 100  // Allow random variation
+            cell.emissionRange = .pi // Emit in a full circle (360 degrees)
+
+            // Smaller, faster confetti
+            cell.contents = createConfettiLayer(color: color)
+            cell.scale = 0.2  // Smaller confetti size
+            cell.scaleRange = 0.1 // Variability in scale
+            cell.yAcceleration = 250 // Increased gravity for faster fall
+            cell.alphaSpeed = -0.3  // Confetti fades out quickly
+
+            return cell
+        }
+
+        private func createConfettiLayer(color: UIColor) -> CGImage? {
+            let size = CGSize(width: 25, height: 25) // Smaller confetti size
+            UIGraphicsBeginImageContext(size)
+            color.setFill()
+            let rect = CGRect(origin: .zero, size: size)
+            UIRectFill(rect)
+            let image = UIGraphicsGetImageFromCurrentImageContext()
+            UIGraphicsEndImageContext()
+            
+            return image?.cgImage
+        }
+
+        func startConfetti() {
+            emitterLayer.birthRate = 1 // Start emitting confetti
+        }
+
+        func stopConfetti() {
+            emitterLayer.birthRate = 0 // Stop emitting confetti
+        }
+    }
+
+    func makeUIViewController(context: Context) -> ConfettiViewController {
+        return ConfettiViewController()
+    }
+
+    func updateUIViewController(_ uiViewController: ConfettiViewController, context: Context) {
+        // Update the view controller if needed
+    }
+}
+
+// Your main SwiftUI view that uses ConfettiView
 struct CandyMonsterCC: View {
-    // List of candies
-    let candies = [
-        "PUR1", "PUR2", "pink", "blue", "yellow", "candy22", "candy33", "candy44",
+    let allCandies = [
+        "pink", "blue", "yellow", "candy22", "candy33", "candy44",
         "candy55", "candy66", "candy77", "candy88", "candy99", "candy100", "candy101",
         "candy102", "candy103", "candy104"
     ]
     
-    // State variables
     @State private var basketPosition: CGPoint = .zero
-    @State private var candyPositions: [CCCandy] = []
+    @State private var currentCandy: CCCandy? = nil
     @State private var candiesInBasket: [CCCandy] = []
-    @State private var countdown: Int = 5  // Starting countdown value
+    @State private var remainingCandies: Int = 5
     @State private var screenHeight: CGFloat = UIScreen.main.bounds.height
     @State private var screenWidth: CGFloat = UIScreen.main.bounds.width
-    
-    // Track if the candy is being dragged
-    @State private var draggedCandy: CCCandy? = nil
+    @State private var gameOver: Bool = false
+    @State private var eidyGScale: CGFloat = 0.1
+    @State private var eidyGOpacity: Double = 0.0
+    @State private var showConfetti: Bool = false // New state variable for confetti
     
     var body: some View {
         ZStack {
-            // Background Image
+            // Background Image (on the bottom layer)
             Image("BackgroundMon")
                 .resizable()
                 .scaledToFill()
                 .edgesIgnoringSafeArea(.all)
             
             VStack {
-                // Countdown label at the top
-                Text("Candies Left: \(countdown)")
-                    .font(.largeTitle)
-                    .bold()
+                // Display the countdown label at the top
+                Text("هيا جمعي عيديتك: \(remainingCandies)")
+                    .font(.system(size: 50, weight: .bold))
                     .padding()
                     .foregroundColor(.brown)
+                    .frame(maxWidth: .infinity, alignment: .center)
                 
                 Spacer()
                 
-                // Basket Image
-                Image("BasketB")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 300, height: 300)
-                    .position(basketPosition)
-                    .onAppear {
-                        // Set basket position to the center of the screen
-                        basketPosition = CGPoint(x: screenWidth / 2, y: screenHeight / 2 + 200)
-                    }
-
-                Spacer()
-
-                // Candy Grid (5 candies per row)
-                VStack {
-                    // Iterate through the list of candies, displaying them in rows
-                    let rows = candies.chunked(into: 5)
-                    ForEach(rows, id: \.self) { row in
-                        HStack(spacing: 20) {  // Add spacing between candies
-                            ForEach(row, id: \.self) { candyName in
-                                CCCandyView(candyName: candyName)
-                                    .frame(width: 120, height: 120)  // Increased size of candies
-                                    .onTapGesture {
-                                        if candiesInBasket.count < 5 {  // Allow only 5 candies to be picked
-                                            addCandyToBasket(candyName: candyName)
-                                        }
+                if let currentCandy = currentCandy {
+                    CCCandyView(candyName: currentCandy.name)
+                        .frame(width: 700, height: 700)
+                        .aspectRatio(contentMode: .fit)
+                        .position(currentCandy.position)
+                        .zIndex(2)
+                        .gesture(
+                            DragGesture()
+                                .onChanged { value in
+                                    updateCandyPosition(newPosition: value.location)
+                                }
+                                .onEnded { value in
+                                    if isCandyInBasket(dropLocation: value.location) {
+                                        addCandyToBasket(dropLocation: value.location)
+                                    } else {
+                                        updateCandyPosition(newPosition: value.location)
                                     }
-                            }
-                        }
-                        .padding(.vertical, 10)  // Add vertical padding between rows
-                    }
+                                }
+                        )
                 }
-                .padding()
                 
-                Spacer()
+                Spacer(minLength: 50)
             }
-            
-            // Display candies in the basket (inside basket area)
+
+            // Display candies in basket
             ForEach(candiesInBasket) { candy in
                 CCCandyView(candyName: candy.name)
-                    .position(basketPosition)
+                    .frame(width: 1300, height: 1300)
+                    .aspectRatio(contentMode: .fit)
+                    .position(candy.position)
+            }
+
+            // Basket Image
+            Image("BasketB")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 800, height: 800)
+                .position(basketPosition)
+                .onAppear {
+                    basketPosition = CGPoint(x: screenWidth / 2, y: screenHeight - 200)
+                }
+
+            // Show "eidyGG" image with animation when the game is over
+            if gameOver {
+                ZStack {
+                    Color.black.opacity(0.6)
+                        .edgesIgnoringSafeArea(.all)
+                    
+                    Image("eidyGG")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 2500, height: 2500)  // Adjust size as needed
+                        .scaleEffect(eidyGScale)
+                        .opacity(eidyGOpacity)
+                        .onAppear {
+                            withAnimation(.easeOut(duration: 0.5)) {
+                                eidyGScale = 1.0
+                                eidyGOpacity = 1.0
+                            }
+                        }
+                        .position(x: screenWidth / 2 - 100, y: screenHeight / 2)  // Shifted a bit to the left
+                        .zIndex(1)
+                }
+            }
+            
+            // ConfettiView (Display the confetti only after game over)
+            if showConfetti {
+                ConfettiView()
+                    .edgesIgnoringSafeArea(.all)
+                    .zIndex(2)  // Make sure confetti is above background but below "eidyG"
             }
         }
         .onAppear {
-            placeCandiesOnFloor()
+            startNewCandy()
         }
         .navigationBarHidden(true)
         .navigationBarBackButtonHidden(true)
-    }
-
-    // Function to place candies randomly on the floor
-    func placeCandiesOnFloor() {
-        var newCandyPositions: [CCCandy] = []
-
-        // Randomize the horizontal positions for each candy
-        for candyName in candies {
-            let randomX = CGFloat.random(in: 50...(screenWidth - 120))
-            let randomY = screenHeight - 150  // Place candies near the bottom
-            
-            let candy = CCCandy(name: candyName, position: CGPoint(x: randomX, y: randomY))
-            newCandyPositions.append(candy)
-        }
-        
-        // Set the positions of candies on the floor
-        candyPositions = newCandyPositions
-    }
-
-    // Function to add candy to the basket
-    func addCandyToBasket(candyName: String) {
-        // Find the candy in the available positions
-        if let index = candyPositions.firstIndex(where: { $0.name == candyName }) {
-            // Add to the basket and remove from the floor
-            let candy = candyPositions.remove(at: index)
-            candiesInBasket.append(candy)
-            
-            // Decrease the countdown
-            countdown = max(0, countdown - 1)
-            
-            // Update candy positions
-            if countdown == 0 {
-                // Handle case when countdown finishes (e.g., stop adding candies)
-                print("Game over, all candies collected!")
+        .disabled(gameOver)
+        .onChange(of: remainingCandies) { newValue in
+            if newValue == 0 {
+                gameOver = true
+                withAnimation(.easeOut(duration: 0.5)) {
+                    showConfetti = true  // Trigger confetti only when the game is over
+                }
             }
+        }
+    }
+    
+    // Candy logic goes here
+    func startNewCandy() {
+        if remainingCandies > 0 {
+            let randomCandy = allCandies.randomElement() ?? "pink"
+            remainingCandies -= 1
+            let candyX = screenWidth / 2
+            let candyY = screenHeight - 1300 / 2 - 300
+            currentCandy = CCCandy(name: randomCandy, position: CGPoint(x: candyX, y: candyY))
+        }
+    }
+
+    func updateCandyPosition(newPosition: CGPoint) {
+        guard var currentCandy = currentCandy else { return }
+        let updatedX = max(min(newPosition.x, screenWidth - 650), 650)
+        let updatedY = max(min(newPosition.y, screenHeight - 650), 650)
+        self.currentCandy?.position = CGPoint(x: updatedX, y: updatedY)
+    }
+
+    func isCandyInBasket(dropLocation: CGPoint) -> Bool {
+        let basketXRange = basketPosition.x - 750...basketPosition.x + 750
+        let basketYRange = basketPosition.y - 750...basketPosition.y + 750
+        return basketXRange.contains(dropLocation.x) && basketYRange.contains(dropLocation.y)
+    }
+
+    func addCandyToBasket(dropLocation: CGPoint) {
+        guard let currentCandy = currentCandy else { return }
+        let candyPosition = CGPoint(x: basketPosition.x - 650, y: basketPosition.y - 650 - 150)
+        candiesInBasket.append(CCCandy(name: currentCandy.name, position: candyPosition))
+        if remainingCandies > 0 {
+            startNewCandy() // Start a new candy after one is added to the basket
         }
     }
 }
 
-// CCCandy data model
+// Data model for candies
 struct CCCandy: Identifiable {
     var id = UUID()
     var name: String
     var position: CGPoint
 }
 
-// View to represent each candy
+// View for each candy
 struct CCCandyView: View {
     var candyName: String
-    
     var body: some View {
         Image(candyName)
             .resizable()
-            .scaledToFit()
-            .frame(width: 120, height: 120)  // Increased candy size
+            .aspectRatio(contentMode: .fit)
     }
 }
 
-extension Array {
-    // Utility to chunk an array into smaller arrays of a specified size
-    func chunked(into size: Int) -> [[Element]] {
-        var chunks: [[Element]] = []
-        for i in 0..<count / size {
-            chunks.append(Array(self[i*size..<Swift.min((i+1)*size, count)]))
-        }
-        return chunks
-    }
-}
-
+// Preview
 struct CandyMonsterCC_Previews: PreviewProvider {
     static var previews: some View {
         CandyMonsterCC()
-            .previewDevice("iPhone 12")
+            .previewDevice("iPad (13th generation)")
     }
 }
