@@ -2,6 +2,9 @@ import SwiftUI
 
 struct ContentView: View {
     @AppStorage("selectedCharacter") private var selectedCharacter: String = "None"
+    
+    // Track navigation state
+    @State private var navigateToCooking = false
 
     var body: some View {
         NavigationStack {
@@ -29,6 +32,7 @@ struct ContentView: View {
                         VStack(spacing: 10) {
                             Button(action: {
                                 selectedCharacter = "Girl"
+                                navigateToCooking = true // Trigger navigation to CookingView
                             }) {
                                 Image("saraleft")
                                     .resizable()
@@ -44,6 +48,7 @@ struct ContentView: View {
                         VStack(spacing: 10) {
                             Button(action: {
                                 selectedCharacter = "Boy"
+                                navigateToCooking = true // Trigger navigation to CookingView
                             }) {
                                 Image("Boyy")
                                     .resizable()
@@ -60,18 +65,11 @@ struct ContentView: View {
 
                     Spacer()
 
-                    // NavigationLinks for character selection
-                    if selectedCharacter == "Boy" {
-                        NavigationLink(destination: candyMonsterB()) {
-                            EmptyView()
-                        }
-                        .hidden()
-                    } else if selectedCharacter == "Girl" {
-                        NavigationLink(destination: CandyMonsterG()) {
-                            EmptyView()
-                        }
-                        .hidden()
+                    // Navigation Link to CookingView
+                    NavigationLink(destination: CookingView(), isActive: $navigateToCooking) {
+                        EmptyView() // Invisible navigation trigger
                     }
+                    .hidden()
                 }
             }
             .navigationBarHidden(true)

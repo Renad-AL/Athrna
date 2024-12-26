@@ -1,86 +1,6 @@
 import SwiftUI
-import UIKit  // Import UIKit for using CAEmitterLayer
+import UIKit
 
-// ConfettiView: A SwiftUI wrapper for UIKit's CAEmitterLayer to show confetti
-struct ConfettiView: UIViewControllerRepresentable {
-    class ConfettiViewController: UIViewController {
-        private var emitterLayer: CAEmitterLayer!
-
-        override func viewDidLoad() {
-            super.viewDidLoad()
-            view.backgroundColor = .clear // Make background clear to focus on confetti
-            setupEmitterLayer()
-        }
-
-        private func setupEmitterLayer() {
-            emitterLayer = CAEmitterLayer()
-            // Position the emitter at the top center of the screen
-            emitterLayer.emitterPosition = CGPoint(x: view.bounds.midX, y: 0)  // Position at the top-center
-            emitterLayer.emitterSize = CGSize(width: view.bounds.size.width, height: 1) // Full width emitter
-            emitterLayer.emitterShape = .line
-            emitterLayer.renderMode = .additive
-
-            let colors: [UIColor] = [.red, .green, .blue, .yellow, .orange, .purple]
-            var cells: [CAEmitterCell] = []
-
-            for color in colors {
-                let cell = createConfettiCell(color: color)
-                cells.append(cell)
-            }
-
-            emitterLayer.emitterCells = cells
-            view.layer.addSublayer(emitterLayer)
-        }
-
-        private func createConfettiCell(color: UIColor) -> CAEmitterCell {
-            let cell = CAEmitterCell()
-            cell.birthRate = 250  // Increased for more confetti
-            cell.lifetime = 10.0  // Shorter lifetime for faster confetti
-            cell.velocity = 300  // Increased for faster falling confetti
-            cell.velocityRange = 100  // Allow random variation
-            cell.emissionRange = .pi // Emit in a full circle (360 degrees)
-
-            // Smaller, faster confetti
-            cell.contents = createConfettiLayer(color: color)
-            cell.scale = 0.2  // Smaller confetti size
-            cell.scaleRange = 0.1 // Variability in scale
-            cell.yAcceleration = 250 // Increased gravity for faster fall
-            cell.alphaSpeed = -0.3  // Confetti fades out quickly
-
-            return cell
-        }
-
-        private func createConfettiLayer(color: UIColor) -> CGImage? {
-            let size = CGSize(width: 25, height: 25) // Smaller confetti size
-            UIGraphicsBeginImageContext(size)
-            color.setFill()
-            let rect = CGRect(origin: .zero, size: size)
-            UIRectFill(rect)
-            let image = UIGraphicsGetImageFromCurrentImageContext()
-            UIGraphicsEndImageContext()
-            
-            return image?.cgImage
-        }
-
-        func startConfetti() {
-            emitterLayer.birthRate = 1 // Start emitting confetti
-        }
-
-        func stopConfetti() {
-            emitterLayer.birthRate = 0 // Stop emitting confetti
-        }
-    }
-
-    func makeUIViewController(context: Context) -> ConfettiViewController {
-        return ConfettiViewController()
-    }
-
-    func updateUIViewController(_ uiViewController: ConfettiViewController, context: Context) {
-        // Update the view controller if needed
-    }
-}
-
-// Your main SwiftUI view that uses ConfettiView
 struct CandyMonsterCC: View {
     let allCandies = [
         "pink", "blue", "yellow", "candy22", "candy33", "candy44",
@@ -97,7 +17,7 @@ struct CandyMonsterCC: View {
     @State private var gameOver: Bool = false
     @State private var eidyGScale: CGFloat = 0.1
     @State private var eidyGOpacity: Double = 0.0
-    @State private var showConfetti: Bool = false // New state variable for confetti
+    @State private var showConfetti: Bool = false // Trigger confetti when game over
     
     var body: some View {
         ZStack {
@@ -182,11 +102,11 @@ struct CandyMonsterCC: View {
                 }
             }
             
-            // ConfettiView (Display the confetti only after game over)
+            // Show the confetti when game is over
             if showConfetti {
-                ConfettiView()
+                GameConfettiView()
                     .edgesIgnoringSafeArea(.all)
-                    .zIndex(2)  // Make sure confetti is above background but below "eidyG"
+                    .zIndex(2)  // Ensure the confetti is above everything
             }
         }
         .onAppear {
@@ -224,8 +144,8 @@ struct CandyMonsterCC: View {
     }
 
     func isCandyInBasket(dropLocation: CGPoint) -> Bool {
-        let basketXRange = basketPosition.x - 750...basketPosition.x + 750
-        let basketYRange = basketPosition.y - 750...basketPosition.y + 750
+        let basketXRange = basketPosition.x - 500...basketPosition.x + 500
+        let basketYRange = basketPosition.y - 400...basketPosition.y + 400
         return basketXRange.contains(dropLocation.x) && basketYRange.contains(dropLocation.y)
     }
 

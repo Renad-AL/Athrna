@@ -1,27 +1,34 @@
 import SwiftUI
 
 struct CookingView: View {
-    @State private var egg1Position: CGPoint = CGPoint(x: -50, y: -40)
-    @State private var egg2Position: CGPoint = CGPoint(x: -50, y: -10)
-    @State private var date1Position: CGPoint = CGPoint(x: 30, y: -40)
-    @State private var date2Position: CGPoint = CGPoint(x: 30, y: -10)
-    @State private var date3Position: CGPoint = CGPoint(x: 30, y: 20)
+    @State private var eggsGroupPosition: CGPoint = CGPoint(x: -50, y: -40)
+    private let eggsGroupOriginalPosition: CGPoint = CGPoint(x: -50, y: -40)
+
+    @State private var datesGroupPosition: CGPoint = CGPoint(x: 30, y: -40)
+    private let datesGroupOriginalPosition: CGPoint = CGPoint(x: 30, y: -40)
+
     @State private var flourPosition: CGPoint = CGPoint(x: 0, y: 0)
     @State private var milkPosition: CGPoint = CGPoint(x: -20, y: 0)
 
-    private let egg1OriginalPosition: CGPoint = CGPoint(x: -50, y: -40)
-    private let egg2OriginalPosition: CGPoint = CGPoint(x: -50, y: -10)
-    private let date1OriginalPosition: CGPoint = CGPoint(x: 30, y: -40)
-    private let date2OriginalPosition: CGPoint = CGPoint(x: 30, y: -10)
-    private let date3OriginalPosition: CGPoint = CGPoint(x: 30, y: 20)
     private let flourOriginalPosition: CGPoint = CGPoint(x: 0, y: 0)
     private let milkOriginalPosition: CGPoint = CGPoint(x: -20, y: 0)
 
-    @State private var bowlImage: String = "bowl1"
-    
+    @State private var bowlImage: String = "group" // الصحن الأساسي
+    @State private var isDatesHidden: Bool = false // حالة إخفاء التمر
+    @State private var isEggsHidden: Bool = false // حالة إخفاء البيض
+    @State private var hasEggsBeenPlaced: Bool = false // هل تم وضع البيض أولًا
+    @State private var hasDatesBeenPlaced: Bool = false // هل تم وضع التمر أولًا
+    @State private var hasMilkBeenPlaced: Bool = false // هل تم وضع الحليب أولًا
+    @State private var hasFlourBeenPlaced: Bool = false // هل تم وضع الدقيق أولًا
+
     var body: some View {
         ZStack {
             Color(red: 1.0, green: 0.97, blue: 0.91)
+                .edgesIgnoringSafeArea(.all)
+
+            Image("wall")
+                .resizable()
+                .scaledToFill()
                 .edgesIgnoringSafeArea(.all)
 
             VStack {
@@ -35,21 +42,29 @@ struct CookingView: View {
                     Image("shelf")
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 700, height: 180)
+                        .frame(width: 800, height: 180)
+                        .offset(y: 19)
 
-                    HStack(spacing: 45) {
-                        ZStack {
-                            createDraggableItem(imageName: "egg1", position: $egg1Position, originalPosition: egg1OriginalPosition)
-                            createDraggableItem(imageName: "egg2", position: $egg2Position, originalPosition: egg2OriginalPosition)
+                    HStack(spacing: 15) {
+                        createDraggableItem(imageName: "flour", position: $flourPosition, originalPosition: flourOriginalPosition, size: CGSize(width: 230, height: 270))
+                            .offset(x: -50)
+                            .offset(y: -2)
+                        
+                        createDraggableItem(imageName: "milk", position: $milkPosition, originalPosition: milkOriginalPosition, size: CGSize(width: 100, height: 180))
+                            .offset(x: -70)
+                            .offset(y: -10)
+
+                        // ZStack الخاصة بالبيض
+                        createDraggableGroup(imageNames: ["egg1", "egg2", "egg3"], groupPosition: $eggsGroupPosition, originalPosition: eggsGroupOriginalPosition, isHidden: $isEggsHidden, isEggsPlaced: $hasEggsBeenPlaced, isDatesPlaced: $hasDatesBeenPlaced, isMilkPlaced: $hasMilkBeenPlaced)
+                            .offset(x: 10, y: 20)
+
+                        // ZStack الخاصة بالتمور
+                        if !isDatesHidden {
+                            createDraggableGroup(imageNames: ["date1", "date2", "date3"], groupPosition: $datesGroupPosition, originalPosition: datesGroupOriginalPosition, isHidden: $isDatesHidden, isEggsPlaced: $hasEggsBeenPlaced, isDatesPlaced: $hasDatesBeenPlaced, isMilkPlaced: $hasMilkBeenPlaced) // إضافة isMilkPlaced هنا
+                                .offset(x: -0, y: 20)
                         }
-                        ZStack {
-                            createDraggableItem(imageName: "date1", position: $date1Position, originalPosition: date1OriginalPosition)
-                            createDraggableItem(imageName: "date2", position: $date2Position, originalPosition: date2OriginalPosition)
-                            createDraggableItem(imageName: "date3", position: $date3Position, originalPosition: date3OriginalPosition)
-                        }
-                        createDraggableItem(imageName: "flour", position: $flourPosition, originalPosition: flourOriginalPosition, size: CGSize(width: 200, height: 250))
-                        createDraggableItem(imageName: "milk", position: $milkPosition, originalPosition: milkOriginalPosition, size: CGSize(width: 80, height: 180))
                     }
+
                     .offset(y: -70)
                 }
                 .padding(.top, 40)
@@ -61,7 +76,7 @@ struct CookingView: View {
                 .resizable()
                 .scaledToFit()
                 .frame(width: 900, height: 900)
-                .offset(x: -50, y: 50)
+                .offset(x: -50, y: 140)
         }
     }
 
@@ -78,34 +93,68 @@ struct CookingView: View {
                     }
                     .onEnded { _ in
                         if isWithinBowl(position: position.wrappedValue) {
-                            updateBowlImage(for: imageName)
+                            position.wrappedValue = CGPoint(x: -9999, y: -9999) // إخراج العنصر من الشاشة
                         } else {
-                            position.wrappedValue = originalPosition
+                            position.wrappedValue = originalPosition // إرجاع العنصر لمكانه الأصلي
                         }
                     }
             )
     }
 
-    private func isWithinBowl(position: CGPoint) -> Bool {
-        let bowlCenter = CGPoint(x: 0, y: 0) // تعديل لتناسب موقع الصحن في الشاشة
-        let threshold: CGFloat = 150
-        let distance = sqrt(pow(position.x - bowlCenter.x, 2) + pow(position.y - bowlCenter.y, 2))
-        return distance < threshold
+    @ViewBuilder
+    private func createDraggableGroup(imageNames: [String], groupPosition: Binding<CGPoint>, originalPosition: CGPoint, isHidden: Binding<Bool>, isEggsPlaced: Binding<Bool>, isDatesPlaced: Binding<Bool>, isMilkPlaced: Binding<Bool>) -> some View {
+        ZStack {
+            ForEach(0..<imageNames.count, id: \.self) { index in
+                Image(imageNames[index])
+                    .resizable()
+                    .frame(width: 100, height: 100)
+                    .offset(CGSize(width: groupPosition.wrappedValue.x + CGFloat(index * 20), height: groupPosition.wrappedValue.y + CGFloat(index * 20)))
+                    .opacity(isHidden.wrappedValue ? 0 : 1) // إخفاء البيض أو التمر عندما يدخل الصحن
+            }
+        }
+        .gesture(
+            DragGesture()
+                .onChanged { value in
+                    groupPosition.wrappedValue = value.location
+                }
+                .onEnded { _ in
+                    if isWithinBowl(position: groupPosition.wrappedValue) {
+                        // تحديد صورة الصحن بناءً على ترتيب العناصر
+                        if !hasDatesBeenPlaced {
+                            bowlImage = "group1" // إذا تم وضع التمر أولًا
+                            hasDatesBeenPlaced = true // تم وضع التمر
+                        } else if hasDatesBeenPlaced && !hasEggsBeenPlaced {
+                            bowlImage = "group3" // إذا تم وضع التمر أولًا ثم البيض
+                            hasEggsBeenPlaced = true // تم وضع البيض
+                        } else if hasEggsBeenPlaced && hasDatesBeenPlaced && !hasMilkBeenPlaced {
+                            bowlImage = "group4" // إذا تم وضع البيض والتمر أولًا ثم الحليب
+                            hasMilkBeenPlaced = true // تم وضع الحليب
+                        } else if hasMilkBeenPlaced && hasEggsBeenPlaced && hasDatesBeenPlaced && !hasFlourBeenPlaced {
+                            bowlImage = "group5" // إذا تم وضع البيض والتمر والحليب ثم الدقيق
+                            hasFlourBeenPlaced = true // تم وضع الدقيق
+                        }
+                        
+                        if imageNames.first == "egg1" { // إذا كان العنصر هو البيض
+                            isHidden.wrappedValue = true
+                        } else if imageNames.first == "date1" {
+                            isDatesHidden = true
+                        } else if imageNames.first == "milk" {
+                            isMilkPlaced.wrappedValue = true
+                        }
+                    } else {
+                        groupPosition.wrappedValue = originalPosition
+                    }
+                }
+        )
     }
 
-    private func updateBowlImage(for item: String) {
-        switch item {
-        case "milk":
-            bowlImage = "bowl2"
-        case "flour":
-            bowlImage = "bowl3"
-        case "date1", "date2", "date3":
-            bowlImage = "bowl4"
-        case "egg1", "egg2":
-            bowlImage = "bowl5"
-        default:
-            bowlImage = "bowl1"
-        }
+
+
+    private func isWithinBowl(position: CGPoint) -> Bool {
+        let bowlCenter = CGPoint(x: -50, y: 140) // موقع الصحن
+        let threshold: CGFloat = 300  // المسافة المطلوبة لتغيير صورة الصحن
+        let distance = sqrt(pow(position.x - bowlCenter.x, 2) + pow(position.y - bowlCenter.y, 2))
+        return distance > threshold
     }
 }
 

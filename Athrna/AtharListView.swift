@@ -2,23 +2,38 @@ import SwiftUI
 
 struct AtharListView: View {
     @ObservedObject var viewModel: AtharListViewModel
-
+    @State private var navigateToCandyMonsterG = false // Track navigation programmatically
+    @State private var lastTappedColor: String? // Track the last tapped color
+    
     var body: some View {
-        VStack {
-            Color(red: 1.0, green: 0.97, blue: 0.90)
-                .ignoresSafeArea()
-                .overlay(
-                    VStack(spacing: 20) {
-                        titleText
-                        girlImage
-                        colorOptions
-                    }
-                    .padding()
+        NavigationStack {
+            VStack {
+                Color(red: 1.0, green: 0.97, blue: 0.90)
+                    .ignoresSafeArea()
+                    .overlay(
+                        VStack(spacing: 20) {
+                            titleText
+                            girlImage
+                            colorOptions
+                        }
+                        .padding()
+                    )
+            }
+            .navigationBarHidden(true) // Hide the top navigation bar
+            
+            // Navigation programmatically without showing the blue box
+            .background(
+                NavigationLink(
+                    destination: CandyMonsterG(selectedGirl: viewModel.selectedGirlImage),
+                    isActive: $navigateToCandyMonsterG,
+                    label: { EmptyView() } // No visual button
                 )
+                .hidden() // Make the NavigationLink hidden so no blue box appears
+            )
         }
     }
 
-    // عنصر النص
+    // Title text
     private var titleText: some View {
         Text("اختاري لون فستان العيد")
             .font(.custom("DG Enab", size: 50))
@@ -27,15 +42,19 @@ struct AtharListView: View {
             .padding()
     }
 
-    // صورة الفتاة
+    // Girl's image, which will trigger navigation when tapped
     private var girlImage: some View {
         Image(viewModel.selectedGirlImage)
             .resizable()
             .aspectRatio(contentMode: .fit)
             .frame(height: 480)
+            .onTapGesture {
+                // Programmatically navigate when image is tapped
+                navigateToCandyMonsterG = true
+            }
     }
 
-    // خيارات الألوان
+    // Color options for dress selection
     private var colorOptions: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 15)
@@ -61,7 +80,15 @@ struct AtharListView: View {
                                 )
                         )
                         .onTapGesture {
-                            viewModel.selectDressColor(color: color)
+                            // Track double taps
+                            if lastTappedColor == color {
+                                // Double tap, confirm the selection
+                                viewModel.selectDressColor(color: color)
+                                navigateToCandyMonsterG = true // Trigger navigation
+                            } else {
+                                // Store the last tapped color
+                                lastTappedColor = color
+                            }
                         }
                 }
             }
