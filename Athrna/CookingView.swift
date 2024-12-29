@@ -20,65 +20,122 @@ struct CookingView: View {
     @State private var hasDatesBeenPlaced: Bool = false // هل تم وضع التمر أولًا
     @State private var hasMilkBeenPlaced: Bool = false // هل تم وضع الحليب أولًا
     @State private var hasFlourBeenPlaced: Bool = false // هل تم وضع الدقيق أولًا
+    @State private var showPopUp: Bool = false // لعرض صفحة pop-up
+    @State private var hasStartedWithEggs: Bool = false // هل بدأ المستخدم بالبيض أولًا
+    @State private var navigateToAtharList: Bool = false // Flag for navigation
 
     var body: some View {
-        ZStack {
-            Color(red: 1.0, green: 0.97, blue: 0.91)
-                .edgesIgnoringSafeArea(.all)
+        NavigationStack { // Wrapping in NavigationStack for navigation functionality
+            ZStack {
+                // الخلفية بلون بيج فاتح
+                Color(red: 1.0, green: 0.97, blue: 0.91)
+                    .edgesIgnoringSafeArea(.all)
 
-            Image("wall")
-                .resizable()
-                .scaledToFill()
-                .edgesIgnoringSafeArea(.all)
+                // إضافة صورة الجدار
+                Image("wall")
+                    .resizable()
+                    .scaledToFill()
+                    .edgesIgnoringSafeArea(.all)
 
-            VStack {
-                Text("ساعد والدتك في إعداد كعكة العيد")
-                    .font(.system(size: 40, weight: .bold))
-                    .foregroundColor(.brown)
-                    .shadow(color: Color.black.opacity(0.1), radius: 2, x: 2, y: 2)
-                    .padding(.top, 60)
+                VStack {
+                    // العنوان
+                    Text("ساعد والدتك في إعداد كعكة العيد")
+                        .font(.system(size: 40, weight: .bold))
+                        .foregroundColor(.brown)
+                        .shadow(color: Color.black.opacity(0.1), radius: 2, x: 2, y: 2)
+                        .padding(.top, 60)
 
-                ZStack {
-                    Image("shelf")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 800, height: 180)
-                        .offset(y: 19)
+                    ZStack {
+                        Image("shelf")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 800, height: 180)
+                            .offset(y: 19)
 
-                    HStack(spacing: 15) {
-                        createDraggableItem(imageName: "flour", position: $flourPosition, originalPosition: flourOriginalPosition, size: CGSize(width: 230, height: 270))
-                            .offset(x: -50)
-                            .offset(y: -2)
-                        
-                        createDraggableItem(imageName: "milk", position: $milkPosition, originalPosition: milkOriginalPosition, size: CGSize(width: 100, height: 180))
-                            .offset(x: -70)
-                            .offset(y: -10)
+                        HStack(spacing: 15) {
+                            createDraggableItem(imageName: "flour", position: $flourPosition, originalPosition: flourOriginalPosition, size: CGSize(width: 230, height: 270))
+                                .offset(x: -50)
+                                .offset(y: -2)
+                            createDraggableItem(imageName: "milk", position: $milkPosition, originalPosition: milkOriginalPosition, size: CGSize(width: 100, height: 180))
+                                .offset(x: -70)
+                                .offset(y: -10)
 
-                        // ZStack الخاصة بالبيض
-                        createDraggableGroup(imageNames: ["egg1", "egg2", "egg3"], groupPosition: $eggsGroupPosition, originalPosition: eggsGroupOriginalPosition, isHidden: $isEggsHidden, isEggsPlaced: $hasEggsBeenPlaced, isDatesPlaced: $hasDatesBeenPlaced, isMilkPlaced: $hasMilkBeenPlaced)
-                            .offset(x: 10, y: 20)
+                            // ZStack الخاصة بالبيض
+                            createDraggableGroup(imageNames: ["egg1", "egg2", "egg3"], groupPosition: $eggsGroupPosition, originalPosition: eggsGroupOriginalPosition, isHidden: $isEggsHidden, isEggsPlaced: $hasEggsBeenPlaced, isDatesPlaced: $hasDatesBeenPlaced)
+                                .offset(x: 10, y: 20)
 
-                        // ZStack الخاصة بالتمور
-                        if !isDatesHidden {
-                            createDraggableGroup(imageNames: ["date1", "date2", "date3"], groupPosition: $datesGroupPosition, originalPosition: datesGroupOriginalPosition, isHidden: $isDatesHidden, isEggsPlaced: $hasEggsBeenPlaced, isDatesPlaced: $hasDatesBeenPlaced, isMilkPlaced: $hasMilkBeenPlaced) // إضافة isMilkPlaced هنا
-                                .offset(x: -0, y: 20)
+                            // ZStack الخاصة بالتمور
+                            if !isDatesHidden {
+                                createDraggableGroup(imageNames: ["date1", "date2", "date3"], groupPosition: $datesGroupPosition, originalPosition: datesGroupOriginalPosition, isHidden: $isDatesHidden, isEggsPlaced: $hasEggsBeenPlaced, isDatesPlaced: $hasDatesBeenPlaced)
+                                    .offset(x: -0, y: 20)
+                            }
                         }
+                        .offset(y: -70)
                     }
+                    .padding(.top, 40)
 
-                    .offset(y: -70)
+                    Spacer()
                 }
-                .padding(.top, 40)
 
-                Spacer()
+                // صورة الصحن
+                Image(bowlImage)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 900, height: 900)
+                    .offset(x: -50, y: 140)
+
+                // صفحة pop-up لعرض الكعكة بحجم الشاشة بالكامل
+                if showPopUp {
+                    ZStack {
+                        // الخلفية مع لون بيج فاتح وصورة الجدار
+                        Color(red: 1.0, green: 0.97, blue: 0.91)
+                            .edgesIgnoringSafeArea(.all)
+
+                        Image("wall")  // صورة الجدار في الأسفل
+                            .resizable()
+                            .scaledToFill()
+                            .edgesIgnoringSafeArea(.all)
+
+                        VStack {
+                            Spacer()
+                            
+                            // النص في أعلى الصفحة
+                            Text("رائع!")
+                                .font(.system(size: 120, weight: .bold))
+                                .foregroundColor(.brown)
+                                .shadow(color: Color.black.opacity(0.1), radius: 2, x: 2, y: 2)
+                                .padding(.top, -400)
+                            
+
+                            Spacer()
+                        }
+                        
+                        // صورة الكعكة
+                        Image("cake") // الصورة التي تريد عرضها
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height * 0.7) // تغيير الحجم ليأخذ الشاشة
+                            .shadow(radius: 10)
+                            .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+                            .onAppear {
+                                // Trigger navigation after the pop-up is shown
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                    navigateToAtharList = true
+                                }
+                            }
+                    }
+                }
+
             }
 
-            Image(bowlImage)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 900, height: 900)
-                .offset(x: -50, y: 140)
+            // Hidden NavigationLink that will trigger after the pop-up
+            NavigationLink(destination: AtharListView(viewModel: AtharListViewModel()), isActive: $navigateToAtharList) {
+                EmptyView()
+            }
         }
     }
+
+    // Make sure these are declared before being used in the body:
 
     @ViewBuilder
     private func createDraggableItem(imageName: String, position: Binding<CGPoint>, originalPosition: CGPoint, size: CGSize = CGSize(width: 100, height: 100)) -> some View {
@@ -93,23 +150,53 @@ struct CookingView: View {
                     }
                     .onEnded { _ in
                         if isWithinBowl(position: position.wrappedValue) {
-                            position.wrappedValue = CGPoint(x: -9999, y: -9999) // إخراج العنصر من الشاشة
+                            if !hasMilkBeenPlaced && imageName == "milk" {
+                                bowlImage = "group4"
+                                hasMilkBeenPlaced = true
+                            } else if hasMilkBeenPlaced && !hasFlourBeenPlaced && imageName == "flour" {
+                                bowlImage = "group5"
+                                hasFlourBeenPlaced = true
+
+                                // الانتظار لمدة 3 ثوانٍ قبل إظهار pop-up
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                                    showPopUp = true
+                                }
+                            } else if !hasFlourBeenPlaced && imageName == "flour" {
+                                bowlImage = "group5"
+                                hasFlourBeenPlaced = true
+                            } else if !hasDatesBeenPlaced && imageName == "date1" {
+                                bowlImage = hasFlourBeenPlaced ? "group7" : "group1"
+                                hasDatesBeenPlaced = true
+                            } else if !hasEggsBeenPlaced && imageName == "egg1" {
+                                bowlImage = hasFlourBeenPlaced ? "group7" : "group6"
+                                hasEggsBeenPlaced = true
+                                hasStartedWithEggs = true // سجل أن المستخدم بدأ بالبيض
+                            }
+                            position.wrappedValue = CGPoint(x: -9999, y: -9999)
                         } else {
-                            position.wrappedValue = originalPosition // إرجاع العنصر لمكانه الأصلي
+                            position.wrappedValue = originalPosition
+                        }
+
+                        // التحقق من إضافة جميع المكونات:
+                        if hasEggsBeenPlaced && hasDatesBeenPlaced && hasFlourBeenPlaced && hasMilkBeenPlaced {
+                            // الانتظار لمدة 3 ثوانٍ قبل إظهار pop-up
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                showPopUp = true
+                            }
                         }
                     }
             )
     }
 
     @ViewBuilder
-    private func createDraggableGroup(imageNames: [String], groupPosition: Binding<CGPoint>, originalPosition: CGPoint, isHidden: Binding<Bool>, isEggsPlaced: Binding<Bool>, isDatesPlaced: Binding<Bool>, isMilkPlaced: Binding<Bool>) -> some View {
+    private func createDraggableGroup(imageNames: [String], groupPosition: Binding<CGPoint>, originalPosition: CGPoint, isHidden: Binding<Bool>, isEggsPlaced: Binding<Bool>, isDatesPlaced: Binding<Bool>) -> some View {
         ZStack {
             ForEach(0..<imageNames.count, id: \.self) { index in
                 Image(imageNames[index])
                     .resizable()
                     .frame(width: 100, height: 100)
                     .offset(CGSize(width: groupPosition.wrappedValue.x + CGFloat(index * 20), height: groupPosition.wrappedValue.y + CGFloat(index * 20)))
-                    .opacity(isHidden.wrappedValue ? 0 : 1) // إخفاء البيض أو التمر عندما يدخل الصحن
+                    .opacity(isHidden.wrappedValue ? 0 : 1)
             }
         }
         .gesture(
@@ -119,42 +206,47 @@ struct CookingView: View {
                 }
                 .onEnded { _ in
                     if isWithinBowl(position: groupPosition.wrappedValue) {
-                        // تحديد صورة الصحن بناءً على ترتيب العناصر
-                        if !hasDatesBeenPlaced {
-                            bowlImage = "group1" // إذا تم وضع التمر أولًا
-                            hasDatesBeenPlaced = true // تم وضع التمر
-                        } else if hasDatesBeenPlaced && !hasEggsBeenPlaced {
-                            bowlImage = "group3" // إذا تم وضع التمر أولًا ثم البيض
-                            hasEggsBeenPlaced = true // تم وضع البيض
-                        } else if hasEggsBeenPlaced && hasDatesBeenPlaced && !hasMilkBeenPlaced {
-                            bowlImage = "group4" // إذا تم وضع البيض والتمر أولًا ثم الحليب
-                            hasMilkBeenPlaced = true // تم وضع الحليب
-                        } else if hasMilkBeenPlaced && hasEggsBeenPlaced && hasDatesBeenPlaced && !hasFlourBeenPlaced {
-                            bowlImage = "group5" // إذا تم وضع البيض والتمر والحليب ثم الدقيق
-                            hasFlourBeenPlaced = true // تم وضع الدقيق
-                        }
-                        
-                        if imageNames.first == "egg1" { // إذا كان العنصر هو البيض
+                        // إذا تم وضع التمر بعد البيض
+                        if !hasDatesBeenPlaced && imageNames.first == "date1" {
+                            bowlImage = hasFlourBeenPlaced ? "group7" : "group1"
+                            hasDatesBeenPlaced = true
                             isHidden.wrappedValue = true
-                        } else if imageNames.first == "date1" {
-                            isDatesHidden = true
-                        } else if imageNames.first == "milk" {
-                            isMilkPlaced.wrappedValue = true
+                        } else if hasDatesBeenPlaced && !hasEggsBeenPlaced && imageNames.first == "egg1" {
+                            // عند إضافة البيض أولاً
+                            if hasStartedWithEggs {
+                                bowlImage = "group3" // استبدال group2 بـ group3 بعد إضافة التمر
+                            } else {
+                                bowlImage = hasFlourBeenPlaced ? "group7" : "group2"
+                            }
+                            hasEggsBeenPlaced = true
+                            isHidden.wrappedValue = true
+                        } else if !hasEggsBeenPlaced && imageNames.first == "egg1" {
+                            // وضع البيض أولاً
+                            bowlImage = hasFlourBeenPlaced ? "group7" : "group6"
+                            hasEggsBeenPlaced = true
+                            isHidden.wrappedValue = true
                         }
                     } else {
                         groupPosition.wrappedValue = originalPosition
+                    }
+
+                    // التحقق من إضافة جميع المكونات:
+                    if hasEggsBeenPlaced && hasDatesBeenPlaced && hasFlourBeenPlaced && hasMilkBeenPlaced {
+                        // الانتظار لمدة 3 ثوانٍ قبل إظهار pop-up
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                            showPopUp = true
+                        }
                     }
                 }
         )
     }
 
 
-
     private func isWithinBowl(position: CGPoint) -> Bool {
-        let bowlCenter = CGPoint(x: -50, y: 140) // موقع الصحن
-        let threshold: CGFloat = 300  // المسافة المطلوبة لتغيير صورة الصحن
+        let bowlCenter = CGPoint(x: -90, y: 140)
+        let threshold: CGFloat = 500
         let distance = sqrt(pow(position.x - bowlCenter.x, 2) + pow(position.y - bowlCenter.y, 2))
-        return distance > threshold
+        return distance < threshold
     }
 }
 

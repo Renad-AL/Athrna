@@ -4,7 +4,7 @@ struct AtharListView: View {
     @ObservedObject var viewModel: AtharListViewModel
     @State private var navigateToCandyMonsterG = false // Track navigation programmatically
     @State private var lastTappedColor: String? // Track the last tapped color
-    
+
     var body: some View {
         NavigationStack {
             VStack {
@@ -80,13 +80,13 @@ struct AtharListView: View {
                                 )
                         )
                         .onTapGesture {
-                            // Track double taps
                             if lastTappedColor == color {
-                                // Double tap, confirm the selection
+                                // Double-tap detected: Confirm color selection and trigger navigation
                                 viewModel.selectDressColor(color: color)
-                                navigateToCandyMonsterG = true // Trigger navigation
+                                navigateToCandyMonsterG = true
                             } else {
-                                // Store the last tapped color
+                                // Single-tap: Change the dress color
+                                viewModel.selectDressColor(color: color)
                                 lastTappedColor = color
                             }
                         }
@@ -101,4 +101,3 @@ struct AtharListView_Previews: PreviewProvider {
         AtharListView(viewModel: AtharListViewModel())
     }
 }
-
