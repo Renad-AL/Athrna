@@ -11,7 +11,7 @@ import SwiftUI
 struct AthrnaApp: App {
     var body: some Scene {
         WindowGroup {
-            CookingView()
+//            CookingView()
         }
     }
 }

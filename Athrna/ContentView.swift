@@ -2,8 +2,6 @@ import SwiftUI
 
 struct ContentView: View {
     @AppStorage("selectedCharacter") private var selectedCharacter: String = "None"
-    
-    // Track navigation state
     @State private var navigateToCooking = false
 
     var body: some View {
@@ -32,7 +30,7 @@ struct ContentView: View {
                         VStack(spacing: 10) {
                             Button(action: {
                                 selectedCharacter = "Girl"
-                                navigateToCooking = true // Trigger navigation to CookingView
+                                navigateToCooking = true
                             }) {
                                 Image("saraleft")
                                     .resizable()
@@ -48,7 +46,7 @@ struct ContentView: View {
                         VStack(spacing: 10) {
                             Button(action: {
                                 selectedCharacter = "Boy"
-                                navigateToCooking = true // Trigger navigation to CookingView
+                                navigateToCooking = true
                             }) {
                                 Image("Boyy")
                                     .resizable()
@@ -65,9 +63,8 @@ struct ContentView: View {
 
                     Spacer()
 
-                    // Navigation Link to CookingView
-                    NavigationLink(destination: CookingView(), isActive: $navigateToCooking) {
-                        EmptyView() // Invisible navigation trigger
+                    NavigationLink(destination: CookingView(selectedCharacter: selectedCharacter), isActive: $navigateToCooking) {
+                        EmptyView()
                     }
                     .hidden()
                 }
@@ -82,3 +79,14 @@ struct ContentView_Previews: PreviewProvider {
         ContentView()
     }
 }
+
+struct CookingView: View {
+    var selectedCharacter: String
+
+    var body: some View {
+        Text("Character selected: \(selectedCharacter)")
+            .font(.title)
+            .padding()
+    }
+}
+
