@@ -29,7 +29,7 @@ struct AtharListViewBoy: View {
             .navigationBarHidden(true)
             .background(
                 NavigationLink(
-                    destination: CandyMonsterG(selectedGirl: viewModel.selectedBoyImage),
+                    destination: CandyMonsterB(selectedGirl: viewModel.selectedBoyImage),
                     isActive: $navigateToCandyMonsterB,
                     label: { EmptyView() }
                 )

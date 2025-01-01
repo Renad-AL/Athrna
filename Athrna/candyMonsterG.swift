@@ -29,10 +29,12 @@ struct CandyMonsterG: View {
                             navigateToCandyMonster1 = true
                         }
 
-                    // NavigationLink here works properly with a flag
-                    NavigationLink(destination: candyMonster1(), isActive: $navigateToCandyMonster1) {
-                        EmptyView()
-                    }
+                    // NavigationLink to CandyMonster1, passing "CandyMonsterG" as context
+                    NavigationLink(
+                        destination: candyMonster1(sourcePage: "CandyMonsterG"), // Pass the source context
+                        isActive: $navigateToCandyMonster1,
+                        label: { EmptyView() }
+                    )
 
                     Spacer()
                 }
@@ -48,4 +50,3 @@ struct CandyMonsterG_Previews: PreviewProvider {
         CandyMonsterG(selectedGirl: "girl")
     }
 }
-

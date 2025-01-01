@@ -1,16 +1,15 @@
 import SwiftUI
 
-// The second view where the candy falling animation occurs
 struct candyMonster1: View {
-    // State properties
+    var sourcePage: String // This will hold either "CandyMonsterB" or "CandyMonsterG"
+    @State private var navigateToNextPage = false // Flag to trigger navigation
     @State private var tapCount = 0
     @State private var imageIndex = 0
     @State private var fallingCandies: [Candy] = []
     @State private var m6Position: CGPoint = .zero
     @State private var screenHeight: CGFloat = UIScreen.main.bounds.height
-    @State private var navigateToCandyMonsterCC = false // Flag to trigger navigation
     @State private var showCandies = false // Flag to show candies
-
+    
     let images = ["m1", "m2", "m3", "m4", "m5", "m6"]
     let candies = ["PUR1", "PUR2", "pink", "blue", "yellow", "candy22", "candy33", "candy44", "candy55", "candy66", "candy77", "candy88", "candy99", "candy100", "candy101", "candy102", "candy103", "candy104"]
 
@@ -68,17 +67,32 @@ struct candyMonster1: View {
                     }
                 }
 
-                // NavigationLink for transition to CandyMonsterCC
+                // NavigationLink for transition to the next page (CandyMonsterGG or CandyMonsterCC)
                 NavigationLink(
-                    destination: CandyMonsterCC(),
-                    isActive: $navigateToCandyMonsterCC,
+                    destination: destinationView(),
+                    isActive: $navigateToNextPage,
                     label: { EmptyView() }
                 )
             }
             .navigationBarHidden(true) // Hide navigation bar
+            .onAppear {
+                // Trigger candy fall animation after 3 seconds
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                    navigateToNextPage = true
+                }
+            }
         }
     }
     
+    // Function to decide which view to navigate to based on the sourcePage
+    func destinationView() -> some View {
+        if sourcePage == "CandyMonsterB" {
+            return AnyView(candyMonsterGG()) // Navigate to CandyMonsterGG
+        } else {
+            return AnyView(CandyMonsterCC()) // Navigate to CandyMonsterCC
+        }
+    }
+
     // Trigger candy fall animation
     func triggerCandyFall() {
         var newCandies: [Candy] = []
@@ -105,11 +119,6 @@ struct candyMonster1: View {
                 fallingCandies[i].position = CGPoint(x: fallingCandies[i].position.x, y: screenHeight - 50)
             }
         }
-
-        // After 2 seconds, transition to CandyMonsterCC
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-            navigateToCandyMonsterCC = true
-        }
     }
 }
 
@@ -134,9 +143,9 @@ struct CandyView: View {
 }
 
 // Preview for candyMonster1
-struct CandyMonster1_Previews: PreviewProvider {
+struct candyMonster1_Previews: PreviewProvider {
     static var previews: some View {
-        candyMonster1()
+        candyMonster1(sourcePage: "CandyMonsterB") // Pass the sourcePage in the preview
             .previewDevice("iPad (13th generation)") // Preview for iPad
     }
 }

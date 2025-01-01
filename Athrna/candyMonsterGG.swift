@@ -1,14 +1,8 @@
 import SwiftUI
 
-struct CandyMonsterCC: View {
-    let allCandies = [
-        "bluey", "blueyish", "circle11", "circle12", "graytri", "gummy",
-        "orangey", "pinkey", "pinkyish", "pinktri", "rainbowtri", "swirl",
-        "yellowish"
-    ]
-    
+struct candyMonsterGG: View {
     @State private var basketPosition: CGPoint = .zero
-    @State private var activeCandies: [CCCandy] = [] // Store all active candies
+    @State private var activeCandies: [CandyGG] = [] // Store all active candies
     @State private var totalCandiesCollected: Int = 0
     @State private var remainingCandies: Int = 5
     @State private var gameOver: Bool = false
@@ -17,6 +11,12 @@ struct CandyMonsterCC: View {
     @State private var showConfetti: Bool = false
     @State private var candiesSpawned: Bool = false // Track if candies have been spawned
 
+    let allCandies = [
+        "bluey", "blueyish", "circle11", "circle12", "graytri", "gummy",
+        "orangey", "pinkey", "pinkyish", "pinktri", "rainbowtri", "swirl",
+        "yellowish"
+    ]
+    
     var body: some View {
         GeometryReader { geometry in
             let screenWidth = geometry.size.width
@@ -24,7 +24,7 @@ struct CandyMonsterCC: View {
 
             ZStack {
                 // Background Image (on the bottom layer)
-                Image("BackgroundMon")
+                Image("BackgroundMon")  // Same background as in CandyMonsterCC
                     .resizable()
                     .scaledToFill()
                     .edgesIgnoringSafeArea(.all)
@@ -50,7 +50,7 @@ struct CandyMonsterCC: View {
                 // Loop through all active candies and display them
                 if !gameOver { // Only show candies if the game is not over
                     ForEach(activeCandies) { candy in
-                        CCCandyView(candyName: candy.name)
+                        CandyGGView(candyName: candy.name)
                             .aspectRatio(contentMode: .fit)  // Let the candy use its original size
                             .frame(width: 120, height: 120)  // Reasonably larger candy size (120x120)
                             .position(candy.position)
@@ -72,8 +72,8 @@ struct CandyMonsterCC: View {
                     }
                 }
 
-                // Basket Image (with the new image name "Baskett")
-                Image("Baskett") // Change from "BasketB" to "Baskett"
+                // Basket Image (with the new image name "Baskettt")
+                Image("Baskettt")  // Changed from "Baskett" to "Baskettt"
                     .resizable()
                     .scaledToFit()
                     .frame(width: 1200, height: 1200)  // Adjust size as needed
@@ -87,7 +87,7 @@ struct CandyMonsterCC: View {
                             .edgesIgnoringSafeArea(.all)
                         
                         // Full basket or "eidyGG" image
-                        Image("eidyGG")  // The final image that should show when the game is over
+                        Image("eidyy2")  // The final image that should show when the game is over
                             .resizable()
                             .scaledToFit()
                             .frame(width: 2500, height: 2500)
@@ -146,7 +146,7 @@ struct CandyMonsterCC: View {
                     candyX = max(min(candyX, screenWidth - 100), 100)
                     candyY = max(min(candyY, screenHeight - 500), textHeight + 30)
 
-                    let newCandy = CCCandy(name: randomCandy, position: CGPoint(x: candyX, y: candyY))
+                    let newCandy = CandyGG(name: randomCandy, position: CGPoint(x: candyX, y: candyY))
                     activeCandies.append(newCandy) // Add the new candy to the active candies array
                     print("Candy spawned at: \(newCandy.position)") // Debugging candy position
                 }
@@ -154,7 +154,7 @@ struct CandyMonsterCC: View {
         }
     }
     
-    func updateCandyPosition(candy: CCCandy, newPosition: CGPoint) {
+    func updateCandyPosition(candy: CandyGG, newPosition: CGPoint) {
         guard let index = activeCandies.firstIndex(where: { $0.id == candy.id }) else { return }
         let updatedX = max(min(newPosition.x, UIScreen.main.bounds.width - 50), 50)  // Bound the movement
         let updatedY = max(min(newPosition.y, UIScreen.main.bounds.height - 50), 50)  // Bound the movement
@@ -167,7 +167,7 @@ struct CandyMonsterCC: View {
         return basketXRange.contains(dropLocation.x) && basketYRange.contains(dropLocation.y)
     }
 
-    func addCandyToBasket(candy: CCCandy) {
+    func addCandyToBasket(candy: CandyGG) {
         // Add the candy to the basket (activeCandies -> basket)
         if let index = activeCandies.firstIndex(where: { $0.id == candy.id }) {
             activeCandies.remove(at: index)
@@ -181,14 +181,14 @@ struct CandyMonsterCC: View {
 }
 
 // Data model for candies
-struct CCCandy: Identifiable {
+struct CandyGG: Identifiable {
     var id = UUID()
     var name: String
     var position: CGPoint
 }
 
 // View for each candy
-struct CCCandyView: View {
+struct CandyGGView: View {
     var candyName: String
     var body: some View {
         Image(candyName)
@@ -197,11 +197,9 @@ struct CCCandyView: View {
     }
 }
 
-// Preview
-struct CandyMonsterCC_Previews: PreviewProvider {
+struct candyMonsterGG_Previews: PreviewProvider {
     static var previews: some View {
-        CandyMonsterCC()
+        candyMonsterGG()
             .previewDevice("iPad (13th generation)")
     }
 }
-
