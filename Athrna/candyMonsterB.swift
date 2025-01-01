@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct CandyMonsterB: View {
+struct candyMonsterB: View {
     var selectedGirl: String // Receive selected girl image to display it
     @State private var navigateToCandyMonster1 = false // Flag to trigger navigation to CandyMonster1
 
@@ -21,7 +21,7 @@ struct CandyMonsterB: View {
                     Spacer()
 
                     // Dynamically change the image based on the selected boy
-                    Image(getBoyImage(selectedGirl)) // Using the passed `selectedGirl` (which is a boy image)
+                    Image(getBoyImage(selectedGirl)) // Using the passed selectedGirl (which is a boy image)
                         .resizable()
                         .scaledToFit()
                         .frame(width: 800, height: 850) // Set fixed size for all images
@@ -61,8 +61,8 @@ struct CandyMonsterB: View {
     }
 }
 
-struct CandyMonsterB_Previews: PreviewProvider {
+struct candyMonsterB_Previews: PreviewProvider {
     static var previews: some View {
-        CandyMonsterB(selectedGirl: "boy") // Example with "boy" as the selected boy image
+        candyMonsterB(selectedGirl: "boy") // Example with "boy" as the selected boy image
     }
 }

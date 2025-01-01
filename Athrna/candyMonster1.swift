@@ -9,6 +9,7 @@ struct candyMonster1: View {
     @State private var m6Position: CGPoint = .zero
     @State private var screenHeight: CGFloat = UIScreen.main.bounds.height
     @State private var showCandies = false // Flag to show candies
+    @State private var animationFinished = false // Flag to detect when the candy animation finishes
     
     let images = ["m1", "m2", "m3", "m4", "m5", "m6"]
     let candies = ["PUR1", "PUR2", "pink", "blue", "yellow", "candy22", "candy33", "candy44", "candy55", "candy66", "candy77", "candy88", "candy99", "candy100", "candy101", "candy102", "candy103", "candy104"]
@@ -75,12 +76,6 @@ struct candyMonster1: View {
                 )
             }
             .navigationBarHidden(true) // Hide navigation bar
-            .onAppear {
-                // Trigger candy fall animation after 3 seconds
-                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                    navigateToNextPage = true
-                }
-            }
         }
     }
     
@@ -117,6 +112,14 @@ struct candyMonster1: View {
         for i in 0..<fallingCandies.count {
             DispatchQueue.main.asyncAfter(deadline: .now() + Double(i) * 0.1) {
                 fallingCandies[i].position = CGPoint(x: fallingCandies[i].position.x, y: screenHeight - 50)
+            }
+        }
+        
+        // Set a delay that matches the animation to navigate after it ends
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+            self.animationFinished = true
+            if self.animationFinished {
+                navigateToNextPage = true // Trigger navigation to next view after the animation ends
             }
         }
     }
