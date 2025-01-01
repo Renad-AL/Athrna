@@ -2,7 +2,7 @@ import SwiftUI
 
 struct ContentView: View {
     @AppStorage("selectedCharacter") private var selectedCharacter: String = "None"
-    @State private var navigateToCooking = false
+    @State private var navigateToNextView = false
 
     var body: some View {
         NavigationStack {
@@ -30,7 +30,7 @@ struct ContentView: View {
                         VStack(spacing: 10) {
                             Button(action: {
                                 selectedCharacter = "Girl"
-                                navigateToCooking = true
+                                navigateToNextView = true
                             }) {
                                 Image("saraleft")
                                     .resizable()
@@ -42,28 +42,12 @@ struct ContentView: View {
                                 .frame(width: 150, height: 60)
                                 .overlay(Text("سارة").font(.title).foregroundColor(.white))
                         }
-
-                        VStack(spacing: 10) {
-                            Button(action: {
-                                selectedCharacter = "Boy"
-                                navigateToCooking = true
-                            }) {
-                                Image("Boyy")
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 350, height: 450)
-                            }
-                            RoundedRectangle(cornerRadius: 15)
-                                .fill(Color.purple.opacity(0.8))
-                                .frame(width: 150, height: 60)
-                                .overlay(Text("سعد").font(.title).foregroundColor(.white))
-                        }
                     }
                     .padding(.bottom, 100)
 
                     Spacer()
 
-                    NavigationLink(destination: CookingView(selectedCharacter: selectedCharacter), isActive: $navigateToCooking) {
+                    NavigationLink(destination: nextView(), isActive: $navigateToNextView) {
                         EmptyView()
                     }
                     .hidden()
@@ -72,21 +56,14 @@ struct ContentView: View {
             .navigationBarHidden(true)
         }
     }
-}
 
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView()
-    }
-}
-
-struct CookingView: View {
-    var selectedCharacter: String
-
-    var body: some View {
-        Text("Character selected: \(selectedCharacter)")
-            .font(.title)
-            .padding()
+    @ViewBuilder
+    private func nextView() -> some View {
+        if selectedCharacter == "Girl" {
+            AtharListViewgirl(viewModel: ViewModelgirl())
+        } else {
+            Text("لم يتم اختيار شخصية")
+        }
     }
 }
 

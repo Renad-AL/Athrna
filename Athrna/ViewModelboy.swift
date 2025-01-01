@@ -1,14 +1,12 @@
 //
-//  AtharListViewModel2.swift
+//  ViewModelboy.swift
 //  Athrna
 //
-//  Created by Linah on 29/06/1446 AH.
+//  Created by Linah on 30/06/1446 AH.
 //
-
-
 import SwiftUI
 
-class AtharListViewModel2: ObservableObject {
+class ViewModelboy: ObservableObject {
     @Published var selectedDressColor: String = "#DEE9F0"
     @Published var availableDressColors: [String] = ["#DEE9F0", "#0C1455", "#383839"]
     @Published var selectedBoyImage: String = "boy"
@@ -27,3 +25,4 @@ class AtharListViewModel2: ObservableObject {
         }
     }
 }
+

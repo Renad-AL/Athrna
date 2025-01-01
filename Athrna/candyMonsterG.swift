@@ -1,8 +1,8 @@
 import SwiftUI
 
 struct CandyMonsterG: View {
-    var selectedGirl: String // Receive selected character to display image
-    @State private var navigateToCandyMonster1 = false // Flag to trigger navigation
+    var selectedGirl: String
+    @State private var navigateToCandyMonster1 = false
 
     var body: some View {
         NavigationStack {
@@ -20,7 +20,7 @@ struct CandyMonsterG: View {
 
                     Spacer()
 
-                    Image(selectedGirl) // Dynamically change image based on selected character
+                    Image(selectedGirl)
                         .resizable()
                         .scaledToFit()
                         .frame(width: 800, height: 850)
@@ -29,6 +29,7 @@ struct CandyMonsterG: View {
                             navigateToCandyMonster1 = true
                         }
 
+                    // NavigationLink here works properly with a flag
                     NavigationLink(destination: candyMonster1(), isActive: $navigateToCandyMonster1) {
                         EmptyView()
                     }
