@@ -1,4 +1,5 @@
 import SwiftUI
+import AVFoundation
 
 struct CandyMonsterCC: View {
     let allCandies = [
@@ -16,6 +17,7 @@ struct CandyMonsterCC: View {
     @State private var eidyGOpacity: Double = 0.0
     @State private var showConfetti: Bool = false
     @State private var candiesSpawned: Bool = false // Track if candies have been spawned
+    @State private var audioPlayer: AVAudioPlayer?
 
     var body: some View {
         GeometryReader { geometry in
@@ -31,7 +33,7 @@ struct CandyMonsterCC: View {
                 
                 VStack {
                     // Display the countdown label at the top
-                    Text("هيا جمعي عيديتك: \(remainingCandies)")
+                    Text("هيا اجمعي عيديتك: \(remainingCandies)")
                         .font(.system(size: 50, weight: .bold))
                         .padding()
                         .foregroundColor(.brown)
@@ -113,6 +115,7 @@ struct CandyMonsterCC: View {
             }
             .onAppear {
                 basketPosition = CGPoint(x: screenWidth / 2, y: screenHeight - 250)  // Adjust basket's position
+                playCollectGirlSound()  // Play the sound when the view appears
             }
             .onChange(of: remainingCandies) { newValue in
                 if newValue == 0 {
@@ -178,6 +181,21 @@ struct CandyMonsterCC: View {
             }
         }
     }
+
+    // Function to play the collectGirl sound when the view appears
+    func playCollectGirlSound() {
+        guard let url = Bundle.main.url(forResource: "collectGirl", withExtension: "mp3") else {
+            print("Failed to find the sound file.")
+            return
+        }
+        
+        do {
+            audioPlayer = try AVAudioPlayer(contentsOf: url)
+            audioPlayer?.play()
+        } catch {
+            print("Error playing sound: \(error.localizedDescription)")
+        }
+    }
 }
 
 // Data model for candies
@@ -204,4 +222,3 @@ struct CandyMonsterCC_Previews: PreviewProvider {
             .previewDevice("iPad (13th generation)")
     }
 }
-

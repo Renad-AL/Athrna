@@ -1,8 +1,10 @@
 import SwiftUI
+import AVFoundation
 
 struct CandyMonsterG: View {
     var selectedGirl: String
     @State private var navigateToCandyMonster1 = false
+    @State private var audioPlayer: AVAudioPlayer?
 
     var body: some View {
         NavigationStack {
@@ -41,6 +43,24 @@ struct CandyMonsterG: View {
                 .padding()
             }
             .navigationBarHidden(true)
+            .onAppear {
+                playHelpSaraSound()  // Play the sound when the view appears
+            }
+        }
+    }
+    
+    // Function to play the HelpSara sound when the view appears
+    func playHelpSaraSound() {
+        guard let url = Bundle.main.url(forResource: "HelpSara", withExtension: "mp3") else {
+            print("Failed to find the sound file.")
+            return
+        }
+        
+        do {
+            audioPlayer = try AVAudioPlayer(contentsOf: url)
+            audioPlayer?.play()
+        } catch {
+            print("Error playing sound: \(error.localizedDescription)")
         }
     }
 }

@@ -1,4 +1,5 @@
 import SwiftUI
+import AVFoundation
 
 struct candyMonster1: View {
     var sourcePage: String // This will hold either "CandyMonsterB" or "CandyMonsterG"
@@ -10,6 +11,7 @@ struct candyMonster1: View {
     @State private var screenHeight: CGFloat = UIScreen.main.bounds.height
     @State private var showCandies = false // Flag to show candies
     @State private var animationFinished = false // Flag to detect when the candy animation finishes
+    @State private var audioPlayer: AVAudioPlayer? // Audio player for playing sound
     
     let images = ["m1", "m2", "m3", "m4", "m5", "m6"]
     let candies = ["PUR1", "PUR2", "pink", "blue", "yellow", "candy22", "candy33", "candy44", "candy55", "candy66", "candy77", "candy88", "candy99", "candy100", "candy101", "candy102", "candy103", "candy104"]
@@ -24,7 +26,7 @@ struct candyMonster1: View {
                     .edgesIgnoringSafeArea(.all)
 
                 VStack {
-                    Text("اكسر الوحش وحرر الحلويات هيا!")
+                    Text("هيا لنحطم وحش الحلوى")
                         .font(.system(size: 50, weight: .bold))
                         .multilineTextAlignment(.center)
                         .foregroundColor(.brown)
@@ -76,6 +78,9 @@ struct candyMonster1: View {
                 )
             }
             .navigationBarHidden(true) // Hide navigation bar
+            .onAppear {
+                playLetsBreakSound() // Play the sound when the view appears
+            }
         }
     }
     
@@ -85,6 +90,21 @@ struct candyMonster1: View {
             return AnyView(candyMonsterGG()) // Navigate to CandyMonsterGG
         } else {
             return AnyView(CandyMonsterCC()) // Navigate to CandyMonsterCC
+        }
+    }
+
+    // Function to play the letsBreak sound when the view appears
+    func playLetsBreakSound() {
+        guard let url = Bundle.main.url(forResource: "letsBreak", withExtension: "mp3") else {
+            print("Failed to find the sound file.")
+            return
+        }
+        
+        do {
+            audioPlayer = try AVAudioPlayer(contentsOf: url)
+            audioPlayer?.play()
+        } catch {
+            print("Error playing sound: \(error.localizedDescription)")
         }
     }
 

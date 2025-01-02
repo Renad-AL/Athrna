@@ -1,4 +1,5 @@
 import SwiftUI
+import AVFoundation
 
 struct CookingView: View {
     @State private var eggsGroupPosition: CGPoint = CGPoint(x: -50, y: -40)
@@ -22,6 +23,8 @@ struct CookingView: View {
     @State private var hasFlourBeenPlaced: Bool = false // هل تم وضع الدقيق أولًا
     @State private var showPopUp: Bool = false // لعرض صفحة pop-up
     @State private var hasStartedWithEggs: Bool = false // هل بدأ المستخدم بالبيض أولًا
+
+    @State private var audioPlayer: AVAudioPlayer? // Audio player for background music
 
     var body: some View {
         ZStack {
@@ -119,6 +122,10 @@ struct CookingView: View {
             }
 
         }
+        .onAppear {
+            // Play "HelpYourM.mp3" when the page first appears
+            playSound(named: "HelpYourM")
+        }
     }
 
     @ViewBuilder
@@ -144,6 +151,8 @@ struct CookingView: View {
                                 // الانتظار لمدة 3 ثوانٍ قبل إظهار pop-up
                                 DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
                                     showPopUp = true
+                                    // Play "Great.mp3" when the popup appears
+                                    playSound(named: "Great")
                                 }
                             } else if !hasFlourBeenPlaced && imageName == "flour" {
                                 bowlImage = "group5"
@@ -165,6 +174,8 @@ struct CookingView: View {
                             // الانتظار لمدة 3 ثوانٍ قبل إظهار pop-up
                             DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                                 showPopUp = true
+                                // Play "Great.mp3" when the popup appears
+                                playSound(named: "Great")
                             }
                         }
                     }
@@ -214,6 +225,8 @@ struct CookingView: View {
                         // الانتظار لمدة 3 ثوانٍ قبل إظهار pop-up
                         DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
                             showPopUp = true
+                            // Play "Great.mp3" when the popup appears
+                            playSound(named: "Great")
                         }
                     }
                 }
@@ -226,9 +239,19 @@ struct CookingView: View {
         let distance = sqrt(pow(position.x - bowlCenter.x, 2) + pow(position.y - bowlCenter.y, 2))
         return distance < threshold
     }
+
+    private func playSound(named soundName: String) {
+        if let url = Bundle.main.url(forResource: soundName, withExtension: "mp3") {
+            do {
+                audioPlayer = try AVAudioPlayer(contentsOf: url)
+                audioPlayer?.play()
+            } catch {
+                print("Error playing sound: \(error)")
+            }
+        }
+    }
 }
 
 #Preview {
     CookingView()
 }
-

@@ -1,8 +1,10 @@
 import SwiftUI
+import AVFoundation
 
 struct candyMonsterB: View {
-    var selectedGirl: String // Receive selected girl image to display it
+    var selectedGirl: String // Receive selected boy image to display it
     @State private var navigateToCandyMonster1 = false // Flag to trigger navigation to CandyMonster1
+    @State private var audioPlayer: AVAudioPlayer? // Player for audio
 
     var body: some View {
         NavigationStack {
@@ -43,9 +45,27 @@ struct candyMonsterB: View {
                 .padding()
             }
             .navigationBarHidden(true)
+            .onAppear {
+                playHelpSaadSound() // Play the sound when the view appears
+            }
         }
     }
 
+    // Function to play the HelpSaad sound when the view appears
+    func playHelpSaadSound() {
+        guard let url = Bundle.main.url(forResource: "HelpSaad", withExtension: "mp3") else {
+            print("Failed to find the sound file.")
+            return
+        }
+        
+        do {
+            audioPlayer = try AVAudioPlayer(contentsOf: url)
+            audioPlayer?.play()
+        } catch {
+            print("Error playing sound: \(error.localizedDescription)")
+        }
+    }
+    
     // Helper function to get the correct image based on the selected boy
     func getBoyImage(_ selectedBoy: String) -> String {
         switch selectedBoy {

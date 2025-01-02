@@ -1,4 +1,5 @@
 import SwiftUI
+import AVFoundation
 
 struct candyMonsterGG: View {
     @State private var basketPosition: CGPoint = .zero
@@ -10,6 +11,7 @@ struct candyMonsterGG: View {
     @State private var eidyGOpacity: Double = 0.0
     @State private var showConfetti: Bool = false
     @State private var candiesSpawned: Bool = false // Track if candies have been spawned
+    @State private var audioPlayer: AVAudioPlayer?
 
     let allCandies = [
         "bluey", "blueyish", "circle11", "circle12", "graytri", "gummy",
@@ -31,7 +33,7 @@ struct candyMonsterGG: View {
                 
                 VStack {
                     // Display the countdown label at the top
-                    Text("هيا جمعي عيديتك: \(remainingCandies)")
+                    Text("هيا اجمع عيديتك: \(remainingCandies)")
                         .font(.system(size: 50, weight: .bold))
                         .padding()
                         .foregroundColor(.brown)
@@ -113,6 +115,7 @@ struct candyMonsterGG: View {
             }
             .onAppear {
                 basketPosition = CGPoint(x: screenWidth / 2, y: screenHeight - 250)  // Adjust basket's position
+                playCollectBoySound()  // Play the sound when the view appears
             }
             .onChange(of: remainingCandies) { newValue in
                 if newValue == 0 {
@@ -176,6 +179,21 @@ struct candyMonsterGG: View {
             if remainingCandies > 0 {
                 spawnCandiesBelowText(screenWidth: UIScreen.main.bounds.width, screenHeight: UIScreen.main.bounds.height, textHeight: 100) // Start new candies after one is collected
             }
+        }
+    }
+
+    // Function to play the collectBoy sound when the view appears
+    func playCollectBoySound() {
+        guard let url = Bundle.main.url(forResource: "collectBoy", withExtension: "mp3") else {
+            print("Failed to find the sound file.")
+            return
+        }
+        
+        do {
+            audioPlayer = try AVAudioPlayer(contentsOf: url)
+            audioPlayer?.play()
+        } catch {
+            print("Error playing sound: \(error.localizedDescription)")
         }
     }
 }

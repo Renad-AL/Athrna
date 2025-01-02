@@ -1,16 +1,11 @@
-//
-//  AtharListViewboy.swift
-//  Athrna
-//
-//  Created by Linah on 30/06/1446 AH.
-//
-
 import SwiftUI
+import AVFoundation
 
 struct AtharListViewBoy: View {
     @ObservedObject var viewModel: ViewModelboy
     @State private var navigateToCandyMonsterB = false
     @State private var lastTappedColor: String?
+    @State private var audioPlayer: AVAudioPlayer? // Audio player for background music
 
     var body: some View {
         NavigationStack {
@@ -35,6 +30,10 @@ struct AtharListViewBoy: View {
                 )
                 .hidden()
             )
+        }
+        .onAppear {
+            // Play "CcolorBoy.mp3" when the view appears
+            playSound(named: "CcolorBoy")
         }
     }
 
@@ -90,6 +89,17 @@ struct AtharListViewBoy: View {
                             }
                         }
                 }
+            }
+        }
+    }
+
+    private func playSound(named soundName: String) {
+        if let url = Bundle.main.url(forResource: soundName, withExtension: "mp3") {
+            do {
+                audioPlayer = try AVAudioPlayer(contentsOf: url)
+                audioPlayer?.play()
+            } catch {
+                print("Error playing sound: \(error)")
             }
         }
     }

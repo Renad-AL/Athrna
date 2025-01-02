@@ -1,14 +1,10 @@
-//
-//  AtharListViewgirl.swift
-//  Athrna
-//
-//  Created by Linah on 30/06/1446 AH.
-//
 import SwiftUI
+import AVFoundation
 
 struct AtharListViewgirl: View {
     @ObservedObject var viewModel: ViewModelgirl
     @State private var navigateToCandyMonsterG = false
+    @State private var audioPlayer: AVAudioPlayer? // Audio player for background music
 
     var body: some View {
         NavigationStack {
@@ -30,6 +26,14 @@ struct AtharListViewgirl: View {
                     EmptyView()
                 }
             )
+        }
+        .onAppear {
+            // Play "CcolorGirl.mp3" when the view appears
+            playSound(named: "CcolorGirl")
+        }
+        .onDisappear {
+            // Stop audio when the view disappears
+            audioPlayer?.stop()
         }
     }
 
@@ -74,11 +78,22 @@ struct AtharListViewgirl: View {
                         )
                         .onTapGesture {
                             viewModel.selectDressColor(color: color)
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { // تأخير لمدة ثانية
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { // Delay for 1 second
                                 navigateToCandyMonsterG = true
                             }
                         }
                 }
+            }
+        }
+    }
+
+    private func playSound(named soundName: String) {
+        if let url = Bundle.main.url(forResource: soundName, withExtension: "mp3") {
+            do {
+                audioPlayer = try AVAudioPlayer(contentsOf: url)
+                audioPlayer?.play()
+            } catch {
+                print("Error playing sound: \(error)")
             }
         }
     }
